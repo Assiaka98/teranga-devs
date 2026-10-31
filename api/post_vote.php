@@ -1,6 +1,6 @@
 <?php
 session_start();
-header('Content-Type: application/json');
+require_once '../includes/auth_guard.php';
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -42,7 +42,7 @@ try {
         exit;
     }
 
-    // 3. Enregistrer le vote
+    // 3. Enregistrer le vote (Correction : utilisation de -> à la place de .)
     $stmtVote = $pdo->prepare("INSERT INTO response_votes (response_id, user_id) VALUES (?, ?)");
     $stmtVote->execute([$response_id, $user_id]);
 

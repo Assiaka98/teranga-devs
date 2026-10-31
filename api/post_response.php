@@ -1,7 +1,9 @@
 <?php
 session_start();
-header('Content-Type: application/json; charset=UTF-8');
-require_once '../config/db.php';
+require_once 'includes/auth_guard.php'; // Bloque l'accès si non connecté
+require_once 'config/db.php';
+
+// Le reste de ta page sensible...
 
 // 1. Vérifier si l'utilisateur est bien connecté
 if (!isset($_SESSION['user_id'])) {
