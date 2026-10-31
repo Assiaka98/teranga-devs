@@ -95,7 +95,25 @@ try {
             </div>
         </div>
     </header>
-
+        <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="index.php" class="font-bold text-xl text-amber-400">Teranga<span class="text-white">Devs</span></a>
+        
+        <div class="flex items-center space-x-4">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <!-- Lien vers le profil -->
+                <a href="profile.php" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <span>👤</span> Mon Profil
+                </a>
+                <span class="text-slate-400 text-sm hidden md:inline">|</span>
+                <a href="logout.php" class="text-sm bg-red-600/20 text-red-400 hover:bg-red-600/30 px-3 py-1.5 rounded-lg transition">Déconnexion</a>
+            <?php else: ?>
+                <a href="login.php" class="text-sm text-slate-300 hover:text-white transition">Connexion</a>
+                <a href="register.php" class="text-sm bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg transition">Inscription</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
         
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">

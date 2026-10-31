@@ -1,6 +1,6 @@
 <?php
+session_start();
 require_once 'config/db.php';
-
 $question_id = $_GET['id'] ?? null;
 
 if (!$question_id) {
@@ -38,7 +38,7 @@ $responses = $stmtResponses->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><= htmlspecialchars($question['titre']) ?> - Teranga Devs</title>
+    <title><?= htmlspecialchars($question['titre']) ?> - Teranga Devs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -66,7 +66,25 @@ $responses = $stmtResponses->fetchAll();
             </span>
         </div>
     </header>
-
+<nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="index.php" class="font-bold text-xl text-amber-400">Teranga<span class="text-white">Devs</span></a>
+        
+        <div class="flex items-center space-x-4">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <!-- Lien vers le profil -->
+                <a href="profile.php" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <span>👤</span> Mon Profil
+                </a>
+                <span class="text-slate-400 text-sm hidden md:inline">|</span>
+                <a href="logout.php" class="text-sm bg-red-600/20 text-red-400 hover:bg-red-600/30 px-3 py-1.5 rounded-lg transition">Déconnexion</a>
+            <?php else: ?>
+                <a href="login.php" class="text-sm text-slate-300 hover:text-white transition">Connexion</a>
+                <a href="register.php" class="text-sm bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg transition">Inscription</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
     <!-- Contenu -->
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
         
@@ -94,12 +112,19 @@ $responses = $stmtResponses->fetchAll();
                 <p class="text-slate-500 text-sm">Aucune réponse pour le moment. Partage ton expertise !</p>
             <?php else: ?>
                 <?php foreach ($responses as $resp): ?>
-                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 shadow-sm space-y-2">
+                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 shadow-sm space-y-3">
                         <div class="flex items-center justify-between text-xs text-slate-400">
-                            <span>Par <strong class="text-slate-200"><?= htmlspecialchars($resp['prenom'] . ' ' . $resp['nom']) ?></strong> (Karma: <?= $resp['reputation'] ?>)</span>
+                            <span>Par <strong class="text-slate-200"><?= htmlspecialchars($resp['prenom'] . ' ' . $resp['nom']) ?></strong> (Karma: <?= $resp['reputation'] ?? 0 ?>)</span>
                             <span><?= $resp['date_creation'] ?></span>
                         </div>
                         <p class="text-sm text-slate-300"><?= nl2br(htmlspecialchars($resp['contenu'])) ?></p>
+                        
+                        <!-- Bouton Upvote corrigé ($resp à la place de $response) -->
+                        <div class="pt-2">
+                            <button type="button" class="vote-btn bg-slate-800 hover:bg-amber-500/20 hover:text-amber-400 text-slate-300 text-xs px-2.5 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1" data-id="<?= $resp['id'] ?>">
+                                ▲ Upvote (<span class="vote-count"><?= $resp['votes'] ?? 0 ?></span>)
+                            </button>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -130,33 +155,6 @@ $responses = $stmtResponses->fetchAll();
     </footer>
 
     <!-- Script AJAX pour poster une réponse -->
-    <script>
-        document.getElementById('response-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const data = {
-                question_id: document.getElementById('question_id').value,
-                user_id: document.getElementById('user_id').value,
-                contenu: document.getElementById('contenu-reponse').value
-            };
-
-            try {
-                const response = await fetch('api/post_response.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    location.reload();
-                } else {
-                    alert('Erreur : ' + result.error);
-                }
-            } catch (err) {
-                console.error('Erreur réseau', err);
-            }
-        });
-    </script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>

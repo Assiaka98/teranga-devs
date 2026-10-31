@@ -32,6 +32,19 @@ CREATE TABLE IF NOT EXISTS responses (
     CONSTRAINT fk_response_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE response_votes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    response_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_vote (response_id, user_id)
+);
+
+-- Ajouter le compteur de votes aux réponses (par défaut à 0)
+ALTER TABLE responses ADD COLUMN votes INT DEFAULT 0;
+
+-- Ajouter le karma aux utilisateurs (par défaut à 0)
+ALTER TABLE users ADD COLUMN karma INT DEFAULT 0;
 -- Données de test
 INSERT INTO users (nom, prenom, email, mot_de_passe, reputation) 
 VALUES ('Traore', 'Issiaka', 'isacadel98@gmail.com', '$2y$10$exemple', 150);

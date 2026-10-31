@@ -73,3 +73,56 @@ function toggleLowBandwidth() {
         btn.classList.toggle('text-slate-950');
     }
 }
+
+async function voteForResponse(responseId, btnElement) {
+    try {
+        const res = await fetch('api/post_vote.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ response_id: responseId })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const countSpan = btnElement.querySelector('.vote-count');
+            countSpan.textContent = data.new_votes;
+            btnElement.classList.add('text-amber-400', 'border-amber-400');
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        console.error('Erreur lors du vote', err);
+    }
+}
+
+// 3. Gestion des votes (Upvotes)
+    document.addEventListener('click', async function(e) {
+        const btn = e.target.closest('.vote-btn');
+        if (!btn) return;
+
+        const responseId = btn.getAttribute('data-id');
+        if (!responseId) return;
+
+        try {
+            const res = await fetch('api/post_vote.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ response_id: parseInt(responseId) })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const countSpan = btn.querySelector('.vote-count');
+                if (countSpan) {
+                    countSpan.textContent = data.new_votes;
+                }
+                btn.classList.add('text-amber-400', 'border-amber-400');
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error('Erreur lors du vote', err);
+        }
+    });
+
+   
