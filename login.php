@@ -105,5 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             input.type = input.type === 'password' ? 'text' : 'password';
         }
     </script>
-</body>
-</html>
+<?php
+require_once 'includes/footer.php';
+?>

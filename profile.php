@@ -100,5 +100,6 @@ $responses = $stmt_r->fetchAll();
             </div>
         </div>
     </main>
-</body>
-</html>
+<?php
+require_once 'includes/footer.php';
+?>

@@ -40,6 +40,13 @@ CREATE TABLE response_votes (
     UNIQUE KEY unique_vote (response_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS article_votes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    article_id INT NOT NULL,
+    user_id INT NOT NULL,
+    UNIQUE KEY unique_vote (article_id, user_id)
+);
+
 -- Ajouter le compteur de votes aux réponses (par défaut à 0)
 ALTER TABLE responses ADD COLUMN votes INT DEFAULT 0;
 
