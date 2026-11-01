@@ -1,7 +1,7 @@
 <?php
 
 // config/db.php (Mode Local)
-
+/*
 $host = 'localhost';
 $dbname = 'teranga_devs'; // Le nom de ta base locale
 $username = 'root';       // Ton utilisateur local (ex: root)
@@ -15,21 +15,10 @@ try {
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion locale : ' . $e->getMessage()]));
 }
+*/
 
-/**
- * Fonction globale pour transformer un titre en slug propre
- */
-function slugify($text) {
-    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
-    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-    $text = preg_replace('~[^-\w]+~', '', $text);
-    $text = trim($text, '-');
-    $text = preg_replace('~-+~', '-', $text);
-    $text = strtolower($text);
-    return empty($text) ? 'n-a' : $text;
-}
 
-/* config/db.php (Configuration Production Systalink)
+ //config/db.php (Configuration Production Systalink)
 
 $host = 'mysql-dbaas-mysql2-pool-mysql-10-teranga-devs.systalinkdatabases.com';
 $port = '33053';
@@ -45,4 +34,20 @@ try {
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
 }
-    */
+   
+
+
+/**
+ * Fonction globale pour transformer un titre en slug propre
+ */
+function slugify($text) {
+    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    $text = preg_replace('~[^-\w]+~', '', $text);
+    $text = trim($text, '-');
+    $text = preg_replace('~-+~', '-', $text);
+    $text = strtolower($text);
+    return empty($text) ? 'n-a' : $text;
+}
+
+ 
