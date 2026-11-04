@@ -1,12 +1,13 @@
 <?php
-// config/db.php (Connexion interne PaaS Systalink)
+// config/db.php (Connexion finale Systalink)
 
-$host = 'teranga-devs'; // Nom du service de la base de données dans le cluster
+$host = 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
 $dbname = 'teranga_devs';
 $username = 'teranga_devs_u';
 $password = 'rVJCvv86PdJDTVUAWRdyXFe3';
 
 try {
+    // Connexion avec l'hôte complet de Systalink (port par défaut 3306)
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -14,14 +15,15 @@ try {
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ]);
 } catch (PDOException $e) {
-    // Si le nom de service court échoue, tentative de secours sur localhost
+    // Tentative de secours avec le port explicite 33053 si le port par défaut échoue
     try {
-        $pdo = new PDO("mysql:host=127.0.0.1;dbname=$dbname;charset=utf8mb4", $username, $password, [
+        $port = '33053';
+        $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
     } catch (PDOException $e2) {
-        die(json_encode(['success' => false, 'error' => 'Erreur de connexion interne : ' . $e->getMessage()]));
+        die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
     }
 }
 
