@@ -1,7 +1,7 @@
 <?php
-// config/db.php (Forcer TCP/IP avec 127.0.0.1)
+// config/db.php (Connexion interne PaaS Systalink)
 
-$host = '127.0.0.1';
+$host = 'teranga-devs'; // Nom du service de la base de données dans le cluster
 $dbname = 'teranga_devs';
 $username = 'teranga_devs_u';
 $password = 'rVJCvv86PdJDTVUAWRdyXFe3';
@@ -14,7 +14,15 @@ try {
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ]);
 } catch (PDOException $e) {
-    die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
+    // Si le nom de service court échoue, tentative de secours sur localhost
+    try {
+        $pdo = new PDO("mysql:host=127.0.0.1;dbname=$dbname;charset=utf8mb4", $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+    } catch (PDOException $e2) {
+        die(json_encode(['success' => false, 'error' => 'Erreur de connexion interne : ' . $e->getMessage()]));
+    }
 }
 
 /**
@@ -29,7 +37,6 @@ function slugify($text) {
     $text = strtolower($text);
     return empty($text) ? 'n-a' : $text;
 }
-
 
 // config/db.php (Mode Local)
 /*
