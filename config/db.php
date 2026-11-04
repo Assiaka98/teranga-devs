@@ -1,7 +1,7 @@
 <?php
-// config/db.php (Connexion locale au conteneur Systalink)
+// config/db.php (Forcer TCP/IP avec 127.0.0.1)
 
-$host = 'localhost';
+$host = '127.0.0.1';
 $dbname = 'teranga_devs';
 $username = 'teranga_devs_u';
 $password = 'rVJCvv86PdJDTVUAWRdyXFe3';
