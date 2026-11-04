@@ -1,13 +1,12 @@
 <?php
-// config/db.php (Configuration Systalink Interne / Production)
+// config/db.php (Connexion locale au conteneur Systalink)
 
-$host = 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
+$host = 'localhost';
 $dbname = 'teranga_devs';
 $username = 'teranga_devs_u';
 $password = 'rVJCvv86PdJDTVUAWRdyXFe3';
 
 try {
-    // Connexion sans spécifier de port externe pour passer par le réseau interne du PaaS
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
