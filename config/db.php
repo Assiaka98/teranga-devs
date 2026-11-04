@@ -1,18 +1,18 @@
 <?php
-// config/db.php (Configuration Production ultra-robuste)
+// config/db.php (Configuration Systalink Interne / Production)
 
-$host = getenv('DB_HOST') ?: 'mysql-dbaas-mysql2-pool-mysql-10-teranga-devs.systalinkdatabases.com';
-$port = getenv('DB_PORT') ?: '33053';
-$dbname = getenv('DB_NAME') ?: 'teranga_devs';
-$username = getenv('DB_USER') ?: 'teranga_devs_u';
-$password = getenv('DB_PASS') ?: 'Q5_IPld3TcYxXjpywsE8dWtE_Fcv3A-7';
+$host = 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
+$dbname = 'teranga_devs';
+$username = 'teranga_devs_u';
+$password = 'rVJCvv86PdJDTVUAWRdyXFe3';
 
 try {
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password, [
+    // Connexion sans spécifier de port externe pour passer par le réseau interne du PaaS
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_PERSISTENT => false,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4, wait_timeout=31536000, interactive_timeout=31536000"
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ]);
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
