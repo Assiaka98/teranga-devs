@@ -128,10 +128,14 @@ function init_sqlite_complete_schema($pdo) {
     $pass = password_hash('Passer123', PASSWORD_BCRYPT);
     $pdo->exec("INSERT OR IGNORE INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
         VALUES (1, 'Traore', 'Issiaka', 'isacadel98@gmail.com', '$pass', 150, 150)");
+    $pdo->exec("INSERT OR IGNORE INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
+        VALUES (2, 'Tamba', 'Balla', 'balla@terangadevs.sn', '$pass', 150, 150)");    
+        $pdo->exec("INSERT OR IGNORE INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
+        VALUES (3, 'Camara', 'Khalifa', 'khalifa@terangadevs.sn', '$pass', 150, 150)");
     
     // Auteurs complémentaires pour dynamiser le forum
     $pdo->exec("INSERT OR IGNORE INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
-        VALUES (2, 'Ndiaye', 'Awa', 'awa@terangadevs.sn', '$pass', 220, 220)");
+        VALUES (4, 'Ndiaye', 'Awa', 'awa@terangadevs.sn', '$pass', 220, 220)");
 
     // Questions initiales
     $pdo->exec("INSERT INTO questions (user_id, titre, contenu, tags) VALUES 
