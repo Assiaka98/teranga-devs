@@ -1,7 +1,4 @@
 <?php
-
-
-<?php
 // config/db.php - Connexion directe à la base de données distante Systalink (Port 33091)
 
 $dbname = 'teranga_devs';
