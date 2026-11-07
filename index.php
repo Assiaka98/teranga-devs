@@ -23,101 +23,71 @@ try {
 ?>
 
 <!-- Contenu Principal de la page d'accueil -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-      <!-- Sidebar Tags -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm h-fit">
-        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Tags Populaires</h3>
-        <div class="flex flex-wrap gap-2">
-            <a href="index.php?tag=PHP" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1 rounded-md transition">#PHP</a>
-            <a href="index.php?tag=IoT" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded-md transition">#IoT</a>
-            <a href="index.php?tag=WaveAPI" class="text-xs bg-slate-800 hover:bg-slate-700 text-red-400 px-2.5 py-1 rounded-md transition">#WaveAPI</a>
-            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#Systalink</a>
-            <?php if ($tagFilter || $searchQuery): ?>
-                <div class="w-full mt-3 pt-3 border-t border-slate-800">
-                    <a href="index.php" class="text-xs text-red-400 hover:underline">Réinitialiser les filtres</a>
-                </div>
-            <?php endif; ?>
-        </div>
-      </div>
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-      <!-- Section Centrale : Formulaire + Liste des questions -->
-      <section class="lg:col-span-3 space-y-6">
-            
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-                <h3 class="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Sidebar Tags (Passera au-dessus ou sous le formulaire sur mobile) -->
+        <aside class="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tags populaires</h2>
+            <div class="flex flex-wrap gap-2">
+                <span class="bg-slate-800 text-amber-400 text-xs px-2.5 py-1 rounded-md">#PHP</span>
+                <span class="bg-slate-800 text-emerald-400 text-xs px-2.5 py-1 rounded-md">#IoT</span>
+                <span class="bg-slate-800 text-rose-400 text-xs px-2.5 py-1 rounded-md">#WaveAPI</span>
+                <span class="bg-slate-800 text-sky-400 text-xs px-2.5 py-1 rounded-md">#Systalink</span>
+            </div>
+        </aside>
+
+        <!-- Zone Principale : Formulaire + Questions -->
+        <section class="lg:col-span-3 space-y-6">
+
+            <!-- Formulaire de question -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 space-y-4">
+                <h2 class="text-sm font-semibold text-amber-400 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span> Poser une question à la communauté
-                </h3>
-                <form id="question-form" class="space-y-4">
-                    <input type="hidden" id="user_id" value="<?= $_SESSION['user_id'] ?? 1 ?>">
-                    <div>
-                        <input type="text" id="titre" placeholder="Titre de votre question..." required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <textarea id="contenu" rows="3" placeholder="Décrivez votre problématique technique..." required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <input type="text" id="tags" placeholder="Tags (ex: PHP,IoT)" required
-                            class="bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-sm text-slate-100 w-1/2 focus:outline-none focus:border-emerald-500">
-                        <button type="submit" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-slate-950 font-bold px-6 py-2 rounded-lg text-sm transition shadow-md">
+                </h2>
+
+                <form action="post_question.php" method="POST" class="space-y-3">
+                    <input type="text" name="title" placeholder="Titre de votre question..." required
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none">
+                    
+                    <textarea name="content" rows="3" placeholder="Décrivez votre problématique technique..." required
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none resize-none"></textarea>
+                    
+                    <!-- Bouton & Tags responsives -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <input type="text" name="tags" placeholder="Tags (ex: PHP, IoT)"
+                            class="w-full sm:w-2/3 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none">
+                        
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-sm px-6 py-2 rounded-lg transition w-full sm:w-auto">
                             Publier
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="space-y-4" id="questions-container">
-                <!-- Barre de recherche -->
-                <form method="GET" action="index.php" class="flex gap-2">
-                    <input type="text" name="search" value="<?= htmlspecialchars($searchQuery ?? '') ?>" placeholder="Rechercher une question par mot-clé..." 
-                        class="flex-grow bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
-                    <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg text-sm transition border border-slate-700">
-                        Rechercher
-                    </button>
-                    <?php if (!empty($searchQuery)): ?>
-                        <a href="index.php" class="bg-slate-900 hover:bg-slate-800 text-red-400 px-4 py-2 rounded-lg text-sm transition border border-slate-800 flex items-center">
-                            Effacer
-                        </a>
-                    <?php endif; ?>
-                </form>
+            <!-- Barre de Recherche Responsive -->
+            <form method="GET" action="index.php" class="flex flex-col sm:flex-row gap-2">
+                <input type="text" name="q" placeholder="Rechercher une question par mot-clé..."
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none">
+                <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold px-5 py-2.5 rounded-lg transition shrink-0">
+                    Rechercher
+                </button>
+            </form>
 
-                <?php if (!empty($searchQuery)): ?>
-                    <div class="text-xs text-slate-400">
-                        Résultats pour : <span class="text-amber-400 font-semibold">"<?= htmlspecialchars($searchQuery) ?>"</span> (<?= count($questions) ?> trouvé(s))
-                    </div>
-                <?php endif; ?>
-
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-400 pt-2">Questions Récentes</h3>
+            <!-- Liste des questions -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Questions récentes</h3>
                 
-                <?php if (empty($questions)): ?>
-                    <p class="text-slate-500 text-sm bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">Aucune question ne correspond à votre recherche.</p>
-                <?php else: ?>
-                    <?php foreach ($questions as $q): ?>
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm hover:border-slate-700 transition space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-slate-400">Par <strong class="text-slate-200"><?= htmlspecialchars($q['prenom'] . ' ' . $q['nom']) ?></strong> (Karma: <?= $q['reputation'] ?>)</span>
-                                <span class="text-xs text-slate-500"><?= $q['date_creation'] ?></span>
-                            </div>
-                           <h4 class="text-base font-bold text-slate-100">
-                               <a href="question.php?id=<?= $q['id'] ?>" class="hover:text-amber-400 transition">
-                                    <?= htmlspecialchars($q['titre']) ?>
-                                </a>
-                            </h4>
-                            <p class="text-sm text-slate-300"><?= nl2br(htmlspecialchars($q['contenu'])) ?></p>
-                            
-                            <div class="flex flex-wrap gap-2 pt-2">
-                                <?php foreach (explode(',', $q['tags']) as $tag): ?>
-                                    <span class="text-xs bg-slate-950 text-amber-400 px-2.5 py-0.5 rounded border border-slate-800"><?= trim($tag) ?></span>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center text-slate-500 text-sm">
+                    Aucune question ne correspond à votre recherche.
+                </div>
             </div>
 
-      </section>
+        </section>
+
+    </div>
+
 </main>
 
 <?php

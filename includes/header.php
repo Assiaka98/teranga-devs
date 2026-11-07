@@ -40,38 +40,35 @@ if (isset($_SESSION['user_id'])) {
             }
         }
     </script>
-</head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+<header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+        
+        <!-- Logo -->
+        <a href="index.php" class="font-bold text-xl text-amber-400 shrink-0">
+            Teranga<span class="text-white">Devs</span>
+        </a>
 
-    <!-- Navbar -->
-    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-6">
-                <a href="index.php" class="font-bold text-xl text-amber-400">Teranga<span class="text-white">Devs</span></a>
-                
-                <a href="articles.php" class="text-sm bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700/50 transition flex items-center gap-1.5">
-                    <span>📚</span> Articles
-                </a>
+        <!-- Liens centraux (scrollable proprement sur mobile si l'écran est petit) -->
+        <nav class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <a href="articles.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 transition">
+                📚 <span>Articles</span>
+            </a>
+            <a href="game.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 transition">
+                🎮 <span>3 Pions</span>
+            </a>
+        </nav>
 
-                <a href="game.php" class="text-sm bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700/50 transition flex items-center gap-1.5">
-                    <span>🎮</span> 3 Pions
+        <!-- Boutons d'action (Connexion / Inscription) -->
+        <div class="flex items-center gap-2 shrink-0">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="logout.php" class="text-xs text-red-400 hover:underline">Déconnexion</a>
+            <?php else: ?>
+                <a href="login.php" class="text-xs text-slate-300 hover:text-white px-2 py-1">Connexion</a>
+                <a href="register.php" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                    Inscription
                 </a>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <span class="text-xs text-slate-300 hidden sm:inline">
-                        Bonjour, <strong class="text-amber-400"><?= htmlspecialchars($userPrenom) ?></strong> 👋
-                    </span>
-                    <a href="profile.php" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                        <span>👤</span> Mon Profil
-                    </a>
-                    <span class="text-slate-400 text-sm hidden md:inline">|</span>
-                    <a href="logout.php" class="text-sm bg-red-600/20 text-red-400 hover:bg-red-600/30 px-3 py-1.5 rounded-lg transition">Déconnexion</a>
-                <?php else: ?>
-                    <a href="login.php" class="text-sm text-slate-300 hover:text-white transition">Connexion</a>
-                    <a href="register.php" class="text-sm bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg transition">Inscription</a>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
-    </nav>
+
+    </div>
+</header>
