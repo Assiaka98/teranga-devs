@@ -9,40 +9,64 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $error = '';
-$success = '';
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
     $contenu = trim($_POST['contenu'] ?? '');
     $extrait = trim($_POST['extrait'] ?? '');
-    $couverture = trim($_POST['couverture'] ?? '');
     $user_id = $_SESSION['user_id'];
+    $couverture = '';
 
     if (!empty($titre) && !empty($contenu)) {
         try {
-            // Génération du slug unique à partir du titre
-            $slug = slugify($titre);
-            
-            // Si l'extrait est vide, on prend les 150 premiers caractères du contenu
-            if (empty($extrait)) {
-                $extrait = mb_substr(strip_tags($contenu), 0, 150) . '...';
+            // Traitement du téléversement de l'image de couverture
+            if (isset($_FILES['couverture_file']) && $_FILES['couverture_file']['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath = $_FILES['couverture_file']['tmp_name'];
+                $fileName = $_FILES['couverture_file']['name'];
+                $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+                if (in_array($fileExtension, $allowedExtensions)) {
+                    $uploadDir = __DIR__ . '/uploads/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+
+                    // Nom unique pour l'image
+                    $newFileName = 'cover_' . uniqid() . '.' . $fileExtension;
+                    $destPath = $uploadDir . $newFileName;
+
+                    if (move_uploaded_file($fileTmpPath, $destPath)) {
+                        $couverture = 'uploads/' . $newFileName;
+                    } else {
+                        $error = "Erreur lors de l'enregistrement de l'image de couverture.";
+                    }
+                } else {
+                    $error = "Format d'image non supporté (seuls JPG, PNG, WEBP et GIF sont autorisés).";
+                }
             }
 
-            // Si aucune image de couverture n'est fournie, on met une image par défaut
+            // Si aucune image uploadée ou si échec, image par défaut
             if (empty($couverture)) {
                 $couverture = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
             }
 
-            // Insertion compatible MySQL (NOW()) et SQLite (DATETIME)
-            $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, slug, extrait, contenu, couverture, date_publication) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))");
-            $stmt->execute([$user_id, $titre, $slug, $extrait, $contenu, $couverture]);
-            
-            // Redirection vers le détail de l'article avec son slug
-            header("Location: article_detail.php?slug=" . $slug);
-            exit;
+            if (empty($error)) {
+                $slug = slugify($titre);
+                if (empty($extrait)) {
+                    $extrait = mb_substr(strip_tags($contenu), 0, 150) . '...';
+                }
+
+                $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, slug, extrait, contenu, couverture, date_publication) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))");
+                $stmt->execute([$user_id, $titre, $slug, $extrait, $contenu, $couverture]);
+                
+                header("Location: article_read.php?slug=" . $slug);
+                exit;
+            }
         } catch (Exception $e) {
-            $error = "Une erreur est survenue lors de la publication de l'article : " . $e->getMessage();
+            $error = "Une erreur est survenue lors de la publication : " . $e->getMessage();
         }
     } else {
         $error = "Veuillez remplir les champs obligatoires (titre et contenu).";
@@ -109,8 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire -->
-        <form method="POST" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm space-y-5">
+        <!-- Formulaire avec enctype -->
+        <form method="POST" enctype="multipart/form-data" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm space-y-5">
             
             <!-- Titre -->
             <div>
@@ -126,11 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
             </div>
 
-            <!-- Image de couverture (URL) -->
+            <!-- Image de couverture (File Upload) -->
             <div>
-                <label for="couverture" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">URL de l'image de couverture (Unsplash)</label>
-                <input type="url" id="couverture" name="couverture" placeholder="https://images.unsplash.com/photo-..."
-                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
+                <label for="couverture_file" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Image de couverture (Téléverser)</label>
+                <input type="file" id="couverture_file" name="couverture_file" accept="image/png, image/jpeg, image/webp, image/gif"
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-400 hover:file:bg-slate-700 cursor-pointer">
+                <span class="text-[10px] text-slate-500 mt-1 block">Formats acceptés : PNG, JPG, WEBP, GIF (Taille recommandée : 1200x630px).</span>
             </div>
 
             <!-- Contenu -->
