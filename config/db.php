@@ -1,6 +1,6 @@
 <?php
 // config/db.php (Connexion via variables d'environnement Systalink)
-
+/*
 $host = getenv('DB_HOST') ?: 'localhost';
 $dbname = getenv('DB_NAME') ?: 'teranga_devs';
 $username = getenv('DB_USER') ?: 'teranga_devs_u';
@@ -16,7 +16,7 @@ try {
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
 }
-
+*/
 /**
  * Fonction globale pour transformer un titre en slug propre
  */
@@ -31,7 +31,7 @@ function slugify($text) {
 }
 
 // config/db.php (Mode Local)
-/*
+
 $host = 'localhost';
 $dbname = 'teranga_devs'; // Le nom de ta base locale
 $username = 'root';       // Ton utilisateur local (ex: root)
@@ -45,7 +45,7 @@ try {
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion locale : ' . $e->getMessage()]));
 }
-*/
+//php -S localhost:8000
 
 
  
