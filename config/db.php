@@ -1,22 +1,24 @@
 <?php
-// config/db.php (Connexion via variables d'environnement Systalink)
-/*
-$host = getenv('DB_HOST') ?: 'localhost';
+// config/db.php (Connexion cloud Systalink via variables d'environnement)
+
+$host = getenv('DB_HOST') ?: 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
 $dbname = getenv('DB_NAME') ?: 'teranga_devs';
 $username = getenv('DB_USER') ?: 'teranga_devs_u';
 $password = getenv('DB_PASS') ?: 'rVJCvv86PdJDTVUAWRdyXFe3';
+$port = getenv('DB_PORT') ?: '3306';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_PERSISTENT => false,
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ]);
 } catch (PDOException $e) {
-    die(json_encode(['success' => false, 'error' => 'Erreur de connexion : ' . $e->getMessage()]));
+    die(json_encode(['success' => false, 'error' => 'Erreur de connexion cloud : ' . $e->getMessage()]));
 }
-*/
+
 /**
  * Fonction globale pour transformer un titre en slug propre
  */
@@ -29,8 +31,7 @@ function slugify($text) {
     $text = strtolower($text);
     return empty($text) ? 'n-a' : $text;
 }
-
-// config/db.php (Mode Local)
+/* config/db.php (Mode Local)
 
 $host = 'localhost';
 $dbname = 'teranga_devs'; // Le nom de ta base locale
@@ -44,7 +45,7 @@ try {
     ]);
 } catch (PDOException $e) {
     die(json_encode(['success' => false, 'error' => 'Erreur de connexion locale : ' . $e->getMessage()]));
-}
+}*/
 //php -S localhost:8000
 
 
