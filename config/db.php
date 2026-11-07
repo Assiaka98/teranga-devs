@@ -1,6 +1,137 @@
 <?php
-// config/db.php - Connexion hybride & Auto-initialisation des tables TerangaDevs
 
+
+<?php
+// config/db.php - Connexion directe à la base de données distante Systalink (Port 33091)
+
+$dbname = 'teranga_devs';
+$username = 'teranga_devs_u';
+$password = 'rVJCvv86PdJDTVUAWRdyXFe3';
+$host = 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
+$port = '33091'; // Port mis à jour depuis le dashboard Systalink
+
+$pdo = null;
+$is_sqlite = false;
+
+// 1. Tentative de connexion prioritaire sur la base MariaDB distante Systalink
+try {
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 5
+    ]);
+} catch (PDOException $e1) {
+    // 2. Repli de secours sur SQLite local si le réseau distant est injoignable
+    try {
+        $sqlite_path = __DIR__ . '/teranga_devs.sqlite';
+        $db_exists = file_exists($sqlite_path);
+        
+        $pdo = new PDO("sqlite:$sqlite_path", null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+        $is_sqlite = true;
+
+        if (!$db_exists || filesize($sqlite_path) == 0) {
+            init_sqlite_complete_schema($pdo);
+        }
+    } catch (PDOException $e3) {
+        die(json_encode(['success' => false, 'error' => 'Erreur critique BDD : ' . $e3->getMessage()]));
+    }
+}
+
+/**
+ * Fonction de secours pour SQLite (si actif)
+ */
+function init_sqlite_complete_schema($pdo) {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nom TEXT NOT NULL,
+        prenom TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        mot_de_passe TEXT NOT NULL,
+        reputation INTEGER DEFAULT 150,
+        karma INTEGER DEFAULT 150,
+        date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        titre TEXT NOT NULL,
+        slug TEXT UNIQUE,
+        extrait TEXT,
+        contenu TEXT NOT NULL,
+        couverture TEXT,
+        votes INTEGER DEFAULT 0,
+        date_publication DATETIME DEFAULT CURRENT_TIMESTAMP,
+        date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS article_votes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        article_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(article_id, user_id),
+        FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS questions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        titre TEXT NOT NULL,
+        contenu TEXT NOT NULL,
+        tags TEXT NOT NULL,
+        date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS responses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        contenu TEXT NOT NULL,
+        votes INTEGER DEFAULT 0,
+        est_solution INTEGER DEFAULT 0,
+        date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS response_votes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        response_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(response_id, user_id),
+        FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    $pass = password_hash('Passer123', PASSWORD_BCRYPT);
+    $pdo->exec("INSERT OR IGNORE INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
+        VALUES (1, 'Traore', 'Issiaka', 'isacadel98@gmail.com', '$pass', 150, 150)");
+}
+
+/**
+ * Helper global pour générer un slug URL propre
+ */
+function slugify($text) {
+    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    $text = preg_replace('~[^-\w]+~', '', $text);
+    $text = trim($text, '-');
+    $text = preg_replace('~-+~', '-', $text);
+    $text = strtolower($text);
+    return empty($text) ? 'n-a' : $text;
+}
+
+// config/db.php - Connexion hybride & Auto-initialisation des tables TerangaDevs
+/*
 $dbname = 'teranga_devs';
 $username = 'teranga_devs_u';
 $password = 'rVJCvv86PdJDTVUAWRdyXFe3';
@@ -47,7 +178,7 @@ try {
 
 /**
  * Fonction d'initialisation du schéma complet de TerangaDevs pour SQLite
- */
+ 
 function init_sqlite_complete_schema($pdo) {
     // 1. Users
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
@@ -154,7 +285,7 @@ function init_sqlite_complete_schema($pdo) {
 
 /**
  * Helper global pour générer un slug URL propre
- */
+ 
 function slugify($text) {
     $text = preg_replace('~[^\pL\d]+~u', '-', $text);
     $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
@@ -163,4 +294,4 @@ function slugify($text) {
     $text = preg_replace('~-+~', '-', $text);
     $text = strtolower($text);
     return empty($text) ? 'n-a' : $text;
-}
+}*/
