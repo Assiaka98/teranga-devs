@@ -69,10 +69,14 @@ if (isset($_SESSION['user_id'])) {
         </nav>
 
         <!-- Boutons d'action (Connexion / Inscription / Déconnexion) -->
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-3 shrink-0">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <?php if (!empty($userPrenom)): ?>
-                    <span class="text-xs text-slate-300 hidden sm:inline">Salut, <?= htmlspecialchars($userPrenom) ?></span>
+                    <!-- Prénom cliquable menant vers profile.php -->
+                    <a href="profile.php" class="text-xs text-slate-300 hover:text-amber-400 transition flex items-center gap-1.5 font-medium">
+                        <span>👤</span> Salut, <span class="underline decoration-amber-400/50 underline-offset-4"><?= htmlspecialchars($userPrenom) ?></span>
+                    </a>
+                    <span class="text-slate-700">|</span>
                 <?php endif; ?>
                 <a href="logout.php" class="text-xs text-red-400 hover:underline px-2 py-1">Déconnexion</a>
             <?php else: ?>
@@ -96,6 +100,12 @@ if (isset($_SESSION['user_id'])) {
         <a href="game.php" class="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-semibold text-emerald-400 bg-slate-800/80 hover:bg-slate-800 border border-slate-700">
             <span>🎮</span> 3 Pions (Dakar Game)
         </a>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="profile.php" class="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-semibold text-slate-200 bg-slate-800/80 hover:bg-slate-800 border border-slate-700">
+                <span>👤</span> Mon Profil
+            </a>
+        <?php endif; ?>
     </div>
 </header>
 
