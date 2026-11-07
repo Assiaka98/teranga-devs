@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Appel du système de session, de sécurité et de la base de données
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/config/db.php';
