@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 // Appel du système de session, de sécurité et de la base de données
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/config/db.php';
@@ -47,8 +48,7 @@ try {
     $article_id = $article['id'];
 
 } catch (Exception $e) {
-    header('Location: articles.php');
-    exit;
+    die("Erreur SQL : " . $e->getMessage());
 }
 
 // Traitement du vote...
@@ -67,7 +67,6 @@ if (isset($_POST['upvote']) && $user_id) {
         $karmaStmt->execute([$article['author_id']]);
     }
     
-    // Redirection après le vote
     $redirectUrl = !empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id;
     header("Location: " . $redirectUrl);
     exit;
@@ -82,4 +81,76 @@ if ($user_id) {
 }
 
 $pageTitle = $article['titre'] . " - Teranga Devs";
+require_once __DIR__ . '/includes/header.php';
+?>
+
+<main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    
+    <!-- Bouton Retour -->
+    <div>
+        <a href="articles.php" class="text-xs text-amber-400 hover:underline inline-flex items-center gap-1">
+            &larr; Retour aux articles
+        </a>
+    </div>
+
+    <!-- Article complet -->
+    <article class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden space-y-6 shadow-xl">
+        
+        <?php if (!empty($article['couverture'])): ?>
+            <div class="w-full h-72 sm:h-96 bg-slate-950 overflow-hidden">
+                <img src="<?= htmlspecialchars($article['couverture']) ?>" alt="Couverture" class="w-full h-full object-cover">
+            </div>
+        <?php endif; ?>
+
+        <div class="p-6 sm:p-8 space-y-6">
+            
+            <div class="space-y-3">
+                <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-950/50 px-2.5 py-1 rounded border border-emerald-800/50">Tutoriel Technique</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 leading-tight">
+                    <?= htmlspecialchars($article['titre']) ?>
+                </h1>
+                
+                <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    <span>Publié par <strong class="text-slate-200"><?= htmlspecialchars($article['prenom'] . ' ' . $article['nom']) ?></strong> (Karma : <?= $article['reputation'] ?? 0 ?>)</span>
+                    <span><?= htmlspecialchars($article['date_publication'] ?? $article['date_creation'] ?? '') ?></span>
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="text-slate-300 text-sm sm:text-base leading-relaxed space-y-4 pt-2">
+                <p><?= nl2br(htmlspecialchars($article['contenu'])) ?></p>
+            </div>
+
+            <!-- Actions de Vote -->
+            <div class="border-t border-slate-800 pt-4 flex justify-between items-center">
+                <a href="articles.php" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg transition">
+                    &larr; Retour
+                </a>
+
+                <div>
+                    <?php if ($user_id && $user_id == $article['author_id']): ?>
+                        <span class="text-xs text-slate-500 italic">C'est ton propre article</span>
+                    <?php elseif ($has_voted): ?>
+                        <div class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2">
+                            <span>✅ Article marqué comme utile</span>
+                            <span class="bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full font-bold"><?= $article['votes'] ?? 0 ?></span>
+                        </div>
+                    <?php else: ?>
+                        <form method="POST">
+                            <button type="submit" name="upvote" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                                <span>👍 Voter (Utile)</span> 
+                                <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full font-bold"><?= $article['votes'] ?? 0 ?></span>
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </div>
+    </article>
+
+</main>
+
+<?php
+require_once __DIR__ . '/includes/footer.php';
 ?>
