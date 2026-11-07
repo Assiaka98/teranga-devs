@@ -40,30 +40,43 @@ if (isset($_SESSION['user_id'])) {
             }
         }
     </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
 <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
         
-        <!-- Logo -->
-        <a href="index.php" class="font-bold text-xl text-amber-400 shrink-0">
-            Teranga<span class="text-white">Devs</span>
-        </a>
+        <!-- Menu Burger Mobile + Logo -->
+        <div class="flex items-center gap-3">
+            <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-1.5 rounded-lg bg-slate-800 focus:outline-none lg:hidden" aria-label="Menu">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <a href="index.php" class="font-bold text-xl text-amber-400 shrink-0">
+                Teranga<span class="text-white">Devs</span>
+            </a>
+        </div>
 
-        <!-- Liens centraux (scrollable proprement sur mobile si l'écran est petit) -->
-        <nav class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <a href="articles.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 transition">
+        <!-- Navigation Desktop -->
+        <nav class="hidden lg:flex items-center gap-2">
+            <a href="articles.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-700">
                 📚 <span>Articles</span>
             </a>
-            <a href="game.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 transition">
+            <a href="game.php" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-2 rounded-lg flex items-center gap-1.5 transition border border-slate-700">
                 🎮 <span>3 Pions</span>
             </a>
         </nav>
 
-        <!-- Boutons d'action (Connexion / Inscription) -->
+        <!-- Boutons d'action (Connexion / Inscription / Déconnexion) -->
         <div class="flex items-center gap-2 shrink-0">
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="logout.php" class="text-xs text-red-400 hover:underline">Déconnexion</a>
+                <?php if (!empty($userPrenom)): ?>
+                    <span class="text-xs text-slate-300 hidden sm:inline">Salut, <?= htmlspecialchars($userPrenom) ?></span>
+                <?php endif; ?>
+                <a href="logout.php" class="text-xs text-red-400 hover:underline px-2 py-1">Déconnexion</a>
             <?php else: ?>
-                <a href="login.php" class="text-xs text-slate-300 hover:text-white px-2 py-1">Connexion</a>
+                <a href="login.php" class="text-xs text-slate-300 hover:text-white px-2.5 py-1.5">Connexion</a>
                 <a href="register.php" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">
                     Inscription
                 </a>
@@ -71,4 +84,24 @@ if (isset($_SESSION['user_id'])) {
         </div>
 
     </div>
+
+    <!-- Tiroir Mobile (Menu déroulant type Stack Overflow) -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-slate-900 border-t border-slate-800 px-4 py-4 space-y-2.5 shadow-xl">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Navigation</div>
+        
+        <a href="articles.php" class="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-semibold text-amber-400 bg-slate-800/80 hover:bg-slate-800 border border-slate-700">
+            <span>📚</span> Articles de la communauté
+        </a>
+        
+        <a href="game.php" class="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm font-semibold text-emerald-400 bg-slate-800/80 hover:bg-slate-800 border border-slate-700">
+            <span>🎮</span> 3 Pions (Dakar Game)
+        </a>
+    </div>
 </header>
+
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+</script>
