@@ -51,28 +51,42 @@ try {
     die("Erreur SQL : " . $e->getMessage());
 }
 
-// Traitement du vote...
-if (isset($_POST['upvote']) && $user_id) {
-    $stmtCheck = $pdo->prepare("SELECT * FROM article_votes WHERE article_id = ? AND user_id = ?");
-    $stmtCheck->execute([$article_id, $user_id]);
-    
-    if ($stmtCheck->rowCount() == 0 && $article['author_id'] != $user_id) {
-        $insertVote = $pdo->prepare("INSERT INTO article_votes (article_id, user_id) VALUES (?, ?)");
-        $insertVote->execute([$article_id, $user_id]);
+// Traitement sécurisé du vote de l'article
+if (isset($_POST['upvote'])) {
+    if (!$user_id) {
+        header('Location: login.php?error=unauthorized');
+        exit;
+    }
 
-        $updateStmt = $pdo->prepare("UPDATE articles SET votes = votes + 1 WHERE id = ?");
-        $updateStmt->execute([$article_id]);
+    try {
+        // Vérifier si l'utilisateur n'a pas déjà voté et n'est pas l'auteur
+        $stmtCheck = $pdo->prepare("SELECT * FROM article_votes WHERE article_id = ? AND user_id = ?");
+        $stmtCheck->execute([$article_id, $user_id]);
         
-        $karmaStmt = $pdo->prepare("UPDATE users SET reputation = reputation + 5 WHERE id = ?");
-        $karmaStmt->execute([$article['author_id']]);
+        if ($stmtCheck->rowCount() == 0 && $article['author_id'] != $user_id) {
+            // Enregistrer le vote
+            $insertVote = $pdo->prepare("INSERT INTO article_votes (article_id, user_id) VALUES (?, ?)");
+            $insertVote->execute([$article_id, $user_id]);
+
+            // Incrémenter les votes de l'article
+            $updateStmt = $pdo->prepare("UPDATE articles SET votes = votes + 1 WHERE id = ?");
+            $updateStmt->execute([$article_id]);
+            
+            // Incrémenter la réputation de l'auteur (+5 points)
+            $karmaStmt = $pdo->prepare("UPDATE users SET reputation = reputation + 5 WHERE id = ?");
+            $karmaStmt->execute([$article['author_id']]);
+        }
+    } catch (Exception $e) {
+        // Capture propre de l'exception en cas de double clic ou contrainte unique violée
     }
     
+    // Redirection propre après traitement pour éviter la resoumission du formulaire
     $redirectUrl = !empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id;
     header("Location: " . $redirectUrl);
     exit;
 }
 
-// Vérification si déjà voté
+// Vérification si l'utilisateur connecté a déjà voté
 $has_voted = false;
 if ($user_id) {
     $stmtVoteCheck = $pdo->prepare("SELECT * FROM article_votes WHERE article_id = ? AND user_id = ?");
@@ -128,7 +142,11 @@ require_once __DIR__ . '/includes/header.php';
                 </a>
 
                 <div>
-                    <?php if ($user_id && $user_id == $article['author_id']): ?>
+                    <?php if (!$user_id): ?>
+                        <a href="login.php" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition inline-block">
+                            🔑 Connecte-toi pour voter
+                        </a>
+                    <?php elseif ($user_id == $article['author_id']): ?>
                         <span class="text-xs text-slate-500 italic">C'est ton propre article</span>
                     <?php elseif ($has_voted): ?>
                         <div class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2">
