@@ -15,23 +15,37 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
     $contenu = trim($_POST['contenu'] ?? '');
+    $extrait = trim($_POST['extrait'] ?? '');
+    $couverture = trim($_POST['couverture'] ?? '');
     $user_id = $_SESSION['user_id'];
 
     if (!empty($titre) && !empty($contenu)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, contenu, date_creation) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$user_id, $titre, $contenu]);
+            // Génération du slug unique à partir du titre
+            $slug = slugify($titre);
             
-            $article_id = $pdo->lastInsertId();
+            // Si l'extrait est vide, on prend les 150 premiers caractères du contenu
+            if (empty($extrait)) {
+                $extrait = mb_substr(strip_tags($contenu), 0, 150) . '...';
+            }
+
+            // Si aucune image de couverture n'est fournie, on met une image par défaut
+            if (empty($couverture)) {
+                $couverture = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
+            }
+
+            // Insertion compatible MySQL (NOW()) et SQLite (DATETIME)
+            $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, slug, extrait, contenu, couverture, date_publication) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))");
+            $stmt->execute([$user_id, $titre, $slug, $extrait, $contenu, $couverture]);
             
-            // Redirection vers l'article créé ou vers la liste des articles
-            header("Location: article_read.php?id=" . $article_id);
+            // Redirection vers le détail de l'article avec son slug
+            header("Location: article_detail.php?slug=" . $slug);
             exit;
         } catch (Exception $e) {
-            $error = "Une erreur est survenue lors de la publication de l'article.";
+            $error = "Une erreur est survenue lors de la publication de l'article : " . $e->getMessage();
         }
     } else {
-        $error = "Veuillez remplir tous les champs obligatoires.";
+        $error = "Veuillez remplir les champs obligatoires (titre et contenu).";
     }
 }
 ?>
@@ -60,25 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Navbar -->
     <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            
-            <!-- Section Gauche : Logo + Lien Articles -->
             <div class="flex items-center space-x-6">
                 <a href="index.php" class="font-bold text-xl text-amber-400">Teranga<span class="text-white">Devs</span></a>
-                
                 <a href="articles.php" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
                     <span>📚</span> Articles
                 </a>
             </div>
             
-            <!-- Section Droite : Actions Utilisateur -->
             <div class="flex items-center space-x-4">
                 <a href="profile.php" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
                     <span>👤</span> Mon Profil
                 </a>
-                <span class="text-slate-400 text-sm hidden md:inline">|</span>
                 <a href="logout.php" class="text-sm bg-red-600/20 text-red-400 hover:bg-red-600/30 px-3 py-1.5 rounded-lg transition">Déconnexion</a>
             </div>
-
         </div>
     </nav>
 
@@ -106,15 +114,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <!-- Titre -->
             <div>
-                <label for="titre" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Titre de l'article</label>
-                <input type="text" id="titre" name="titre" placeholder="Ex: Comment optimiser l'autonomie d'un ESP32 en mode Deep Sleep" required
+                <label for="titre" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Titre de l'article *</label>
+                <input type="text" id="titre" name="titre" placeholder="Ex: Comment connecter un capteur IoT à Node.js" required
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
+            </div>
+
+            <!-- Extrait -->
+            <div>
+                <label for="extrait" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Extrait court (résumé)</label>
+                <input type="text" id="extrait" name="extrait" placeholder="Bref résumé affiché sur la liste des articles..."
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
+            </div>
+
+            <!-- Image de couverture (URL) -->
+            <div>
+                <label for="couverture" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">URL de l'image de couverture (Unsplash)</label>
+                <input type="url" id="couverture" name="couverture" placeholder="https://images.unsplash.com/photo-..."
                     class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition">
             </div>
 
             <!-- Contenu -->
             <div>
-                <label for="contenu" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Contenu de l'article</label>
-                <textarea id="contenu" name="contenu" rows="12" placeholder="Écris ton article ici..." required
+                <label for="contenu" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Contenu de l'article *</label>
+                <textarea id="contenu" name="contenu" rows="10" placeholder="Écris ton article en détail ici..." required
                     class="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 transition leading-relaxed"></textarea>
             </div>
 
@@ -123,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="articles.php" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg transition">
                     Annuler
                 </a>
-                <button type="submit" class="bg-gradient-to-r from-teranga-green to-emerald-600 hover:opacity-90 text-slate-950 font-bold px-6 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-2">
+                <button type="submit" class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-90 text-slate-950 font-bold px-6 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-2">
                     <span>🚀</span> Publier l'article
                 </button>
             </div>
@@ -133,6 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <!-- Footer -->
- <?php
-require_once 'includes/footer.php';
-?>
+    <?php require_once 'includes/footer.php'; ?>
+</body>
+</html>
