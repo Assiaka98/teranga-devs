@@ -37,7 +37,7 @@ require_once 'includes/header.php';
                         <div class="space-y-2">
                             <span class="text-[10px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-800/50">Tutoriel</span>
                             <h2 class="text-lg font-semibold text-slate-100 hover:text-amber-400 transition">
-                                <a href="article_detail.php?slug=<?= htmlspecialchars($art['slug']) ?>">
+                                <a href="article_read.php?slug=<?= htmlspecialchars($art['slug']) ?>">
                                     <?= htmlspecialchars($art['titre']) ?>
                                 </a>
                             </h2>
@@ -48,7 +48,7 @@ require_once 'includes/header.php';
 
                         <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                             <span>Par <strong class="text-slate-200"><?= htmlspecialchars($art['prenom'] . ' ' . $art['nom']) ?></strong></span>
-                            <a href="article_detail.php?slug=<?= htmlspecialchars($art['slug']) ?>" class="text-amber-400 font-semibold hover:underline">Lire l'article &rarr;</a>
+                            <a href="article_read.php?slug=<?= htmlspecialchars($art['slug']) ?>" class="text-amber-400 font-semibold hover:underline">Lire l'article &rarr;</a>
                         </div>
                     </div>
                 </article>
