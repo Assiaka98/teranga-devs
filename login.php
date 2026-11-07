@@ -102,12 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
 
-    <script>
-        function togglePassword() {
-            const input = document.getElementById('password');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-    </script>
+    <script src="assets/js/main.js"></script>
 
     <?php require_once 'includes/footer.php'; ?>
 </body>

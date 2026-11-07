@@ -1,22 +1,42 @@
 <?php
-// config/db.php (Connexion cloud Systalink via variables d'environnement)
+// config/db.php (Détection dynamique d'hôte interne pour Systalink)
 
-$host = getenv('DB_HOST') ?: 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
 $dbname = getenv('DB_NAME') ?: 'teranga_devs';
 $username = getenv('DB_USER') ?: 'teranga_devs_u';
 $password = getenv('DB_PASS') ?: 'rVJCvv86PdJDTVUAWRdyXFe3';
-$port = getenv('DB_PORT') ?: '3306';
 
-try {
-    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
-    $pdo = new PDO($dsn, $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_PERSISTENT => false,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
-    ]);
-} catch (PDOException $e) {
-    die(json_encode(['success' => false, 'error' => 'Erreur de connexion cloud : ' . $e->getMessage()]));
+// Liste des hôtes potentiels par ordre de priorité sur le réseau interne
+$candidate_hosts = array_filter([
+    getenv('DB_HOST'),
+    'teranga-devs-db',
+    'mysql',
+    '127.0.0.1'
+]);
+
+$pdo = null;
+$last_error = '';
+
+foreach ($candidate_hosts as $host) {
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => 2, // Timeout court de 2 sec par tentative
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+        ]);
+        if ($pdo) {
+            break; // Connexion réussie !
+        }
+    } catch (PDOException $e) {
+        $last_error = "[$host] " . $e->getMessage();
+    }
+}
+
+if (!$pdo) {
+    die(json_encode([
+        'success' => false, 
+        'error' => 'Impossible de joindre la base sur le réseau interne. Dernière erreur : ' . $last_error
+    ]));
 }
 
 /**
@@ -31,22 +51,3 @@ function slugify($text) {
     $text = strtolower($text);
     return empty($text) ? 'n-a' : $text;
 }
-/* config/db.php (Mode Local)
-
-$host = 'localhost';
-$dbname = 'teranga_devs'; // Le nom de ta base locale
-$username = 'root';       // Ton utilisateur local (ex: root)
-$password = '';           // Ton mot de passe local (souvent vide en local)
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-} catch (PDOException $e) {
-    die(json_encode(['success' => false, 'error' => 'Erreur de connexion locale : ' . $e->getMessage()]));
-}*/
-//php -S localhost:8000
-
-
- 
