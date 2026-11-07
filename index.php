@@ -34,11 +34,18 @@ require_once 'includes/header.php';
         <aside class="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tags populaires</h2>
             <div class="flex flex-wrap gap-2">
-                <a href="index.php?tag=PHP" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs px-2.5 py-1 rounded-md transition">#PHP</a>
-                <a href="index.php?tag=IoT" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs px-2.5 py-1 rounded-md transition">#IoT</a>
-                <a href="index.php?tag=WaveAPI" class="bg-slate-800 hover:bg-slate-700 text-rose-400 text-xs px-2.5 py-1 rounded-md transition">#WaveAPI</a>
-                <a href="index.php?tag=Systalink" class="bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs px-2.5 py-1 rounded-md transition">#Systalink</a>
-                
+             <a href="index.php?tag=PHP" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1 rounded-md transition">#PHP</a>
+            <a href="index.php?tag=IoT" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded-md transition">#IoT</a>
+            <a href="index.php?tag=WaveAPI" class="text-xs bg-slate-800 hover:bg-slate-700 text-red-400 px-2.5 py-1 rounded-md transition">#WaveAPI</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#Systalink</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#C</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#Python</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#JavaScript</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#HTML</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#CSS</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#Go</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#SQL</a>
+            <a href="index.php?tag=Systalink" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-2.5 py-1 rounded-md transition">#NoSQL</a>    
                 <?php if ($tagFilter || $searchQuery): ?>
                     <div class="w-full mt-2 pt-2 border-t border-slate-800">
                         <a href="index.php" class="text-xs text-amber-400 hover:underline">Réinitialiser les filtres</a>
