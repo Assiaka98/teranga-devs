@@ -1,41 +1,37 @@
 <?php
-// config/db.php (Détection dynamique d'hôte interne pour Systalink)
+// config/db.php (Connexion explicite au service distant Systalink)
 
-$dbname = getenv('DB_NAME') ?: 'teranga_devs';
-$username = getenv('DB_USER') ?: 'teranga_devs_u';
-$password = getenv('DB_PASS') ?: 'rVJCvv86PdJDTVUAWRdyXFe3';
+$host = 'mysql-dbaas-mysql2-teranga-devs-teranga-devs.systalinkdatabases.com';
+$dbname = 'teranga_devs';
+$username = 'teranga_devs_u';
+$password = 'rVJCvv86PdJDTVUAWRdyXFe3';
 
-// Liste des hôtes potentiels par ordre de priorité sur le réseau interne
-$candidate_hosts = array_filter([
-    getenv('DB_HOST'),
-    'teranga-devs-db',
-    'mysql',
-    '127.0.0.1'
-]);
-
+// On teste d'abord le port 33053 (vu dans tes configurations), puis le port standard 3306
+$ports = ['33053', '3306'];
 $pdo = null;
 $last_error = '';
 
-foreach ($candidate_hosts as $host) {
+foreach ($ports as $port) {
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
+        $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+        $pdo = new PDO($dsn, $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_TIMEOUT => 2, // Timeout court de 2 sec par tentative
+            PDO::ATTR_TIMEOUT => 5,
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
         ]);
         if ($pdo) {
-            break; // Connexion réussie !
+            break; // Connexion établie avec succès !
         }
     } catch (PDOException $e) {
-        $last_error = "[$host] " . $e->getMessage();
+        $last_error = "[Port $port] " . $e->getMessage();
     }
 }
 
 if (!$pdo) {
     die(json_encode([
         'success' => false, 
-        'error' => 'Impossible de joindre la base sur le réseau interne. Dernière erreur : ' . $last_error
+        'error' => 'Erreur de connexion distante Systalink : ' . $last_error
     ]));
 }
 
