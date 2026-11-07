@@ -17,6 +17,7 @@ if (!$slug && !$article_id) {
 }
 
 $user_id = $_SESSION['user_id'] ?? null;
+$error_msg = '';
 
 // Récupération des informations de l'article (par slug ou par id)
 try {
@@ -44,11 +45,15 @@ try {
         exit;
     }
     
-    // Définir $article_id pour le système de votes
     $article_id = $article['id'];
 
 } catch (Exception $e) {
     die("Erreur SQL : " . $e->getMessage());
+}
+
+// Gestion des messages d'erreur passés dans l'URL
+if (isset($_GET['error']) && $_GET['error'] === 'already_voted') {
+    $error_msg = "Vous avez déjà voté pour cet article ! Un seul vote par utilisateur est autorisé.";
 }
 
 // Traitement sécurisé du vote de l'article
@@ -59,34 +64,48 @@ if (isset($_POST['upvote'])) {
     }
 
     try {
-        // Vérifier si l'utilisateur n'a pas déjà voté et n'est pas l'auteur
+        // Vérifier si l'utilisateur a déjà voté
         $stmtCheck = $pdo->prepare("SELECT * FROM article_votes WHERE article_id = ? AND user_id = ?");
         $stmtCheck->execute([$article_id, $user_id]);
         
-        if ($stmtCheck->rowCount() == 0 && $article['author_id'] != $user_id) {
-            // Enregistrer le vote
-            $insertVote = $pdo->prepare("INSERT INTO article_votes (article_id, user_id) VALUES (?, ?)");
-            $insertVote->execute([$article_id, $user_id]);
-
-            // Incrémenter les votes de l'article
-            $updateStmt = $pdo->prepare("UPDATE articles SET votes = votes + 1 WHERE id = ?");
-            $updateStmt->execute([$article_id]);
-            
-            // Incrémenter la réputation de l'auteur (+5 points)
-            $karmaStmt = $pdo->prepare("UPDATE users SET reputation = reputation + 5 WHERE id = ?");
-            $karmaStmt->execute([$article['author_id']]);
+        if ($stmtCheck->rowCount() > 0) {
+            $redirectUrl = (!empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id) . "&error=already_voted";
+            header("Location: " . $redirectUrl);
+            exit;
         }
+
+        if ($article['author_id'] == $user_id) {
+            $redirectUrl = (!empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id) . "&error=self_vote";
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+
+        // Enregistrer le vote
+        $insertVote = $pdo->prepare("INSERT INTO article_votes (article_id, user_id) VALUES (?, ?)");
+        $insertVote->execute([$article_id, $user_id]);
+
+        // Incrémenter les votes de l'article
+        $updateStmt = $pdo->prepare("UPDATE articles SET votes = votes + 1 WHERE id = ?");
+        $updateStmt->execute([$article_id]);
+        
+        // Incrémenter la réputation de l'auteur (+5 points)
+        $karmaStmt = $pdo->prepare("UPDATE users SET reputation = reputation + 5 WHERE id = ?");
+        $karmaStmt->execute([$article['author_id']]);
+
     } catch (Exception $e) {
-        // Capture propre de l'exception en cas de double clic ou contrainte unique violée
+        // En cas de violation de contrainte unique (double clic simultané)
+        $redirectUrl = (!empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id) . "&error=already_voted";
+        header("Location: " . $redirectUrl);
+        exit;
     }
     
-    // Redirection propre après traitement pour éviter la resoumission du formulaire
+    // Redirection propre après succès
     $redirectUrl = !empty($article['slug']) ? "article_read.php?slug=" . $article['slug'] : "article_read.php?id=" . $article_id;
     header("Location: " . $redirectUrl);
     exit;
 }
 
-// Vérification si l'utilisateur connecté a déjà voté
+// Vérification si déjà voté pour adapter l'affichage du bouton
 $has_voted = false;
 if ($user_id) {
     $stmtVoteCheck = $pdo->prepare("SELECT * FROM article_votes WHERE article_id = ? AND user_id = ?");
@@ -106,6 +125,14 @@ require_once __DIR__ . '/includes/header.php';
             &larr; Retour aux articles
         </a>
     </div>
+
+    <!-- Message d'erreur / Alerte -->
+    <?php if (!empty($error_msg)): ?>
+        <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm p-4 rounded-xl flex items-center gap-3 shadow-lg">
+            <span>⚠️</span>
+            <span><?= htmlspecialchars($error_msg) ?></span>
+        </div>
+    <?php endif; ?>
 
     <!-- Article complet -->
     <article class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden space-y-6 shadow-xl">
