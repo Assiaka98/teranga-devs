@@ -55,7 +55,7 @@ function init_mysql_complete_schema($pdo) {
         date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB;");
 
-    // 2. Articles
+ // 2. Articles
     $pdo->exec("CREATE TABLE IF NOT EXISTS articles (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -63,7 +63,7 @@ function init_mysql_complete_schema($pdo) {
         slug VARCHAR(255) UNIQUE,
         extrait TEXT,
         contenu TEXT NOT NULL,
-        couverture VARCHAR(255),
+        couverture TEXT,
         votes INT DEFAULT 0,
         date_publication DATETIME DEFAULT CURRENT_TIMESTAMP,
         date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
