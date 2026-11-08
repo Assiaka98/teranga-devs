@@ -125,7 +125,17 @@ require_once __DIR__ . '/includes/header.php';
             &larr; Retour aux articles
         </a>
     </div>
-
+    <!-- Actions Auteur (Modifier / Supprimer) -->
+<?php if ($user_id && $user_id == $article['author_id']): ?>
+    <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
+        <a href="article_edit.php?id=<?= $article['id'] ?>" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+            <span>✏️</span> Modifier
+        </a>
+        <a href="article_delete.php?id=<?= $article['id'] ?>" onclick="return confirm('Es-tu sûr de vouloir supprimer définitivement cet article ?');" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+            <span>🗑️</span> Supprimer
+        </a>
+    </div>
+<?php endif; ?>
     <!-- Message d'erreur / Alerte -->
     <?php if (!empty($error_msg)): ?>
         <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm p-4 rounded-xl flex items-center gap-3 shadow-lg">
