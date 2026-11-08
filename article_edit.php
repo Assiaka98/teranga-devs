@@ -106,7 +106,14 @@ require_once __DIR__ . '/includes/header.php';
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Nouvelle image de couverture (optionnel)</label>
             <?php if (!empty($article['couverture'])): ?>
                 <div class="mb-2">
-                    <img src="<?= htmlspecialchars($article['couverture']) ?>" alt="Actuelle" class="w-32 h-20 object-cover rounded-lg border border-slate-800">
+                    <?php 
+                        // Gestion propre du chemin (qu'il s'agisse d'une URL absolue externe ou d'un upload local)
+                        $imgSrc = $article['couverture'];
+                        if (strpos($imgSrc, 'http') !== 0 && strpos($imgSrc, '/') !== 0) {
+                            $imgSrc = '/' . $imgSrc;
+                        }
+                    ?>
+                    <img src="<?= htmlspecialchars($imgSrc) ?>" alt="Actuelle" class="w-32 h-20 object-cover rounded-lg border border-slate-800">
                 </div>
             <?php endif; ?>
             <input type="file" name="couverture_file" accept="image/*"
