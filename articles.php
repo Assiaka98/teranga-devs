@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "Articles & Tutoriels - Teranga Devs";
-require_once 'config/db.php';
 session_start();
+$pageTitle = "Articles & Tutoriels - Teranga Devs";
+require_once __DIR__ . '/config/db.php';
 
 try {
     $stmt = $pdo->query("SELECT a.*, u.nom, u.prenom FROM articles a JOIN users u ON a.user_id = u.id ORDER BY a.date_publication DESC");
@@ -10,15 +10,23 @@ try {
     $articles = [];
 }
 
-require_once 'includes/header.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
 <main class="max-w-7xl mx-auto px-4 py-8 space-y-6">
     
-    <!-- En-tête de section -->
-    <div class="border-b border-slate-800 pb-4">
-        <h1 class="text-2xl font-bold text-amber-400">Articles & Tutoriels</h1>
-        <p class="text-xs text-slate-400 mt-1">Partagez vos retours d'expérience, analyses de sécurité et guides techniques.</p>
+    <!-- En-tête de section avec bouton de création d'article -->
+    <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-amber-400">Articles & Tutoriels</h1>
+            <p class="text-xs text-slate-400 mt-1">Partagez vos retours d'expérience, analyses de sécurité et guides techniques.</p>
+        </div>
+        
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="article_create.php" class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-90 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition shadow-md flex items-center gap-1.5 shrink-0">
+                <span>✍️</span> Rédiger un article
+            </a>
+        <?php endif; ?>
     </div>
 
     <!-- Grille des Articles -->
@@ -63,5 +71,5 @@ require_once 'includes/header.php';
 </main>
 
 <?php
-require_once 'includes/footer.php';
+require_once __DIR__ . '/includes/footer.php';
 ?>

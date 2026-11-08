@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $extrait = mb_substr(strip_tags($contenu), 0, 150) . '...';
                 }
 
-                $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, slug, extrait, contenu, couverture, date_publication) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))");
+                $stmt = $pdo->prepare("INSERT INTO articles (user_id, titre, slug, extrait, contenu, couverture, date_publication) VALUES (?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$user_id, $titre, $slug, $extrait, $contenu, $couverture]);
                 
                 header("Location: article_read.php?slug=" . $slug);
