@@ -177,7 +177,7 @@ $responses = $stmtResponses->fetchAll();
                                     ✓ Marquer comme solution
                                 </button>
                             </form>
-                        <?php elseif ($resp['is_solution']): ?>
+                            <?php elseif (!empty($resp['est_solution']) || !empty($resp['is_solution'])): ?>
                             <div class="mt-2 inline-flex items-center gap-1.5 text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-lg border border-emerald-500/40 font-semibold">
                                 <span>✓ Solution validée</span>
                             </div>
