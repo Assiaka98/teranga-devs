@@ -55,8 +55,12 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
 
                         <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                            <span>Par <strong class="text-slate-200"><?= htmlspecialchars($art['prenom'] . ' ' . $art['nom']) ?></strong></span>
-                            <a href="article_read.php?slug=<?= htmlspecialchars($art['slug']) ?>" class="text-amber-400 font-semibold hover:underline">Lire l'article &rarr;</a>
+                            <span>Par 
+                                <a href="profile.php?id=<?= $art['user_id'] ?>" class="text-slate-200 hover:text-amber-400 font-semibold transition underline decoration-slate-700">
+                                    <?= htmlspecialchars($art['prenom'] . ' ' . $art['nom']) ?>
+                                </a>
+                            </span>
+                            <span><?= date('d/m/Y', strtotime($art['date_publication'])) ?></span>
                         </div>
                     </div>
                 </article>

@@ -116,12 +116,17 @@ function init_mysql_complete_schema($pdo) {
         CONSTRAINT fk_vote_response_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB;");
 
-    // Insertion d'un utilisateur par défaut si la table users est vide
-    $checkUser = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    if ($checkUser == 0) {
-        $pass = password_hash('Passer123', PASSWORD_BCRYPT);
-        $pdo->exec("INSERT INTO users (id, nom, prenom, email, mot_de_passe, reputation, karma) 
-            VALUES (1, 'Traore', 'Issiaka', 'isacadel98@gmail.com', '$pass', 150, 150)");
+  // Ajout sécurisé des colonnes de profil si elles n'existent pas encore
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN titre_bio VARCHAR(255) DEFAULT 'Développeur / Passionné de Tech'");
+    } catch (PDOException $e) {
+        // La colonne existe déjà, on ignore
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN avatar VARCHAR(500) DEFAULT NULL");
+    } catch (PDOException $e) {
+        // La colonne existe déjà, on ignore
     }
 }
 

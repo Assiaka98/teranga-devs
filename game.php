@@ -15,7 +15,11 @@ require_once 'config/db.php';
             theme: {
                 extend: {
                     colors: {
-                        teranga: { green: '#00853F', gold: '#FCD116', red: '#E31B23' }
+                        teranga: { green: '#00853F<span>Par 
+    <a href="profile.php?id=<?= $art['user_id'] ?>" class="text-slate-200 hover:text-amber-400 font-semibold transition underline decoration-slate-700">
+        <?= htmlspecialchars($art['prenom'] . ' ' . $art['nom']) ?>
+    </a>
+</span>', gold: '#FCD116', red: '#E31B23' }
                     }
                 }
             }
