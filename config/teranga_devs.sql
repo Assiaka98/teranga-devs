@@ -8,10 +8,13 @@ CREATE TABLE IF NOT EXISTS users (
     prenom VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
+    titre_bio VARCHAR(255) DEFAULT NULL,
+    avatar VARCHAR(255) DEFAULT NULL,
     reputation INT DEFAULT 0,
-    karma INT DEFAULT 0,
+    karma INT DEFAULT 150,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
 
 -- Table des articles (essentielle pour le CRUD d'articles)
 CREATE TABLE IF NOT EXISTS articles (
